@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { createMatchSchema, listMatchesQuerySchema } from "../src/validation/matches.js";
-import { getMatchStatus } from "../src/utils/match-status.js";
-import { db } from "../src/db/db.js";
-import { matches } from "../src/db/schema.js";
+import { createMatchSchema, listMatchesQuerySchema } from "../validation/matches.js";
+import { getMatchStatus } from "../utils/match-status.js";
+import { db } from "../db/db.js";
+import { matches } from "../db/schema.js";
 import { desc } from "drizzle-orm";
 
 export const matchRoutes = Router();
@@ -76,6 +76,10 @@ matchRoutes.post("/", async (req, res) => {
                 status,
             })
             .returning();
+
+            if(res.app.locals.broadcastMatchCreated){
+                res.app.locals.broadcastMatchCreated(event);
+            }
 
         res.status(201).json({ data: event });
     } catch (e) {
