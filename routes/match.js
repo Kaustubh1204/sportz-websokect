@@ -9,13 +9,16 @@ export const matchRoutes = Router();
 
 const MAX_LIMIT = 100;
 
+/* =========================
+   GET /matches
+========================= */
 matchRoutes.get("/", async (req, res) => {
     const parsed = listMatchesQuerySchema.safeParse(req.query);
 
     if (!parsed.success) {
         return res.status(400).json({
             error: "Invalid query parameters",
-            details: JSON.strinyfy(parsed.error)
+            details: parsed.error,
         });
     }
 
@@ -37,7 +40,9 @@ matchRoutes.get("/", async (req, res) => {
     }
 });
 
-
+/* =========================
+   POST /matches
+========================= */
 matchRoutes.post("/", async (req, res) => {
     const parsed = createMatchSchema.safeParse(req.body);
 
@@ -57,6 +62,9 @@ matchRoutes.post("/", async (req, res) => {
     } = parsed.data;
 
     try {
+        const computedStatus = getMatchStatus(startTime, endTime);
+        const status = computedStatus ?? "scheduled";
+
         const [event] = await db
             .insert(matches)
             .values({
@@ -65,7 +73,7 @@ matchRoutes.post("/", async (req, res) => {
                 endTime: new Date(endTime),
                 homeScore: homeScore ?? 0,
                 awayScore: awayScore ?? 0,
-                status: getMatchStatus(startTime, endTime),
+                status,
             })
             .returning();
 
