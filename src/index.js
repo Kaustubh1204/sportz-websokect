@@ -14,9 +14,7 @@ app.get('/', (req, res) => {
     res.json({ message: 'Hello from Express!' });
 });
 
-app.use(securityMiddleware());
-
-app.use("/matches", matchRoutes);
+app.use("/matches", securityMiddleware(), matchRoutes);
 
 const server = app.listen(PORT, HOST, () => {
     const baseUrl = HOST === '0.0.0.0' ? `http://localhost:${PORT}` : `http://${HOST}:${PORT}`;
